@@ -40,68 +40,7 @@ def index():
                             {"url": "/next5", "text": "クイズ"},
                             ])
 
-
-# @app.route('/enq/<key>')
-@app.route('/next5/<key>')  # <key>をURLパラメータとして受け取る
-def enq(key):
-    # キーが辞書に存在しない場合のエラーハンドリング
-    if key not in enquirely:
-        return "指定されたキーは存在しません。", 404
-
-    # キーに基づいて質問と選択肢を取得
-    question, option1, option2 = enquirely[key]
-
-    # quiz.htmlテンプレートにデータを渡してレンダリング
-    return render_template("quiz.html",
-                           key=key,
-                           question=question,
-                           option1=option1,
-                           option2=option2
-                           )
-
-
-# アンケートにアクセスするkeyを使用
-
-
-@app.route('/enq/<key>', endpoint='enq_key')  # エンドポイント名を変更
-def enq_with_key(key):
-    # enquirely辞書から指定されたキーの情報を取得
-    if key not in enquirely:
-        return "指定されたキーは存在しません。", 404  # エラーハンドリング
-
-    # 出力用HTMLの生成
-    output = f'''
-    <h2>{enquirely[key][0]}</h2>
-    <br>
-    <form action="/ans/{key}" method="POST">
-        <input type="radio" name="answer" value="1">{enquirely[key][1]}<br>
-        <input type="radio" name="answer" value="2">{enquirely[key][2]}<br>
-        <input type="submit" value="送信">
-    </form>
-    <br>
-    <a href="/">戻る</a>
-    '''
-    return output
-
-
-# 回答に関するkeyを使用
-
-
-@ app.route('/ans/<key>', methods=["POST"])
-def ans(key):
-    ret = request.form.get("answer")
-    answer = enquirely[key][int(ret)] if key in enquirely else ''
-    output = f'''
-    {enquirely[key][0] if key in enquirely else ''}
-
-回答は、{answer}でした。
-<br>
-<a href="/">Back</a>
-'''
-    return output
-
-# ネクストの中身を記述
-# 1,管理者メニュー、db操作、db編集
+# next1の画面内容
 
 
 @ app.route('/next1')
@@ -154,6 +93,11 @@ def next1():
     '''
     return output
 
+# next1の中身
+
+# ネクストの中身を記述
+# 1,管理者メニュー、db操作、db編集
+
 # next1/serch内に検索結果を表示する
 
 
@@ -181,7 +125,7 @@ def search_user():
 # userを追加するためのコード
 
 
-@app.route('/next1/add', methods=['POST'])
+@ app.route('/next1/add', methods=['POST'])
 def add_user():
     #  add_name を取得
     name = request.form.get('add_name')
@@ -272,14 +216,6 @@ def edit_user():
 #     return output
 
 
-# PDFファイルを提供するための新しいルート
-@app.route('/map_ol2.pdf')
-def serve_pdf():
-    return send_file(
-        os.path.join(app.root_path, 'static', 'map_ol2.pdf'),
-        as_attachment=True)
-
-
 # ext2の中身を表示
 @app.route('/next2')
 def next2():
@@ -328,6 +264,7 @@ def next2():
     '''
     return output
 
+
 # next3の中身を表示
 # ユーザーIDを受け取るように変更
 
@@ -360,22 +297,92 @@ def next3(user_id):
         )
 # カスタマー用の現在のスタンプの獲得情報や、スタンプカードインデックスに使用
 
+
+# @app.route('/enq/<key>')
+
+
+@ app.route('/next5/<key>')  # <key>をURLパラメータとして受け取る
+def enq(key):
+    # キーが辞書に存在しない場合のエラーハンドリング
+    if key not in enquirely:
+        return "指定されたキーは存在しません。", 404
+
+    # キーに基づいて質問と選択肢を取得
+    question, option1, option2 = enquirely[key]
+
+    # quiz.htmlテンプレートにデータを渡してレンダリング
+    return render_template("quiz.html",
+                           key=key,
+                           question=question,
+                           option1=option1,
+                           option2=option2
+                           )
+
+
+# アンケートにアクセスするkeyを使用
+
+
+@app.route('/enq/<key>', endpoint='enq_key')  # エンドポイント名を変更
+def enq_with_key(key):
+    # enquirely辞書から指定されたキーの情報を取得
+    if key not in enquirely:
+        return "指定されたキーは存在しません。", 404  # エラーハンドリング
+
+    # 出力用HTMLの生成
+    output = f'''
+    <h2>{enquirely[key][0]}</h2>
+    <br>
+    <form action="/ans/{key}" method="POST">
+        <input type="radio" name="answer" value="1">{enquirely[key][1]}<br>
+        <input type="radio" name="answer" value="2">{enquirely[key][2]}<br>
+        <input type="submit" value="送信">
+    </form>
+    <br>
+    <a href="/">戻る</a>
+    '''
+    return output
+
+
+# 回答に関するkeyを使用
+
+
+@ app.route('/ans/<key>', methods=["POST"])
+def ans(key):
+    ret = request.form.get("answer")
+    answer = enquirely[key][int(ret)] if key in enquirely else ''
+    output = f'''
+    {enquirely[key][0] if key in enquirely else ''}
+
+回答は、{answer}でした。
+<br>
+<a href="/">Back</a>
+'''
+    return output
+
+# PDFファイルを提供するための新しいルート
+@app.route('/map_ol2.pdf')
+def serve_pdf():
+    return send_file(
+        os.path.join(app.root_path, 'static', 'map_ol2.pdf'),
+        as_attachment=True)
+
+
 # 全tableを表示
 
 
-@ app.route("/table")
-def table():
-    enquiry_list = [
-        {"key": key, "title": value[0]} for key, value in enquirely.items()
-        ]
-    return render_template("table.html",
-                           enquiry_list=enquiry_list,
-                           all_table=enquirely,
-                           other_links=[
-                            {"url": "/user_t", "text": "userテーブル"},
-                            {"url": "/quiz_t", "text": "クイズテーブル"},
-                            {"url": "/survey_t", "text": "アンケートテーブル"},
-                            ])
+# @ app.route("/table")
+# def table():
+#     enquiry_list = [
+#         {"key": key, "title": value[0]} for key, value in enquirely.items()
+#         ]
+#     return render_template("table.html",
+#                            enquiry_list=enquiry_list,
+#                            all_table=enquirely,
+#                            other_links=[
+#                             {"url": "/user_t", "text": "userテーブル"},
+#                             {"url": "/quiz_t", "text": "クイズテーブル"},
+#                             {"url": "/survey_t", "text": "アンケートテーブル"},
+#                             ])
 
 
 @ app.route('/table')
