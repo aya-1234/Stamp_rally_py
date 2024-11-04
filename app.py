@@ -1,6 +1,5 @@
-from flask import Flask, render_template, request, send_from_static
+from flask import Flask, render_template, request
 import sqlite3
-import pandas as pd
 import os
 
 
@@ -265,15 +264,6 @@ def next2():
     '''
     return output
 
-@app.route('/next2/map-section')
-def picture():
-    return render_template('next2.html')
-
-# send_from_staticはFlask 1.1.0以降で使用可能です。
-# それ以前のバージョンではsend_static_fileを使用してください。
-@app.route('/image')
-def get_image():
-    return send_from_static('image.jpg')
 
 # next3の中身を表示
 # ユーザーIDを受け取るように変更
