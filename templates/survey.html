@@ -77,39 +77,17 @@
     </style>
 </head>
 <body>
-<div class="survey">
-    <h1>アンケート一覧</h1>
+<h1>{{ group_name }} クイズ</h1>
+<form method="post">
+    {% for question in questions %}
+    <p>{{ question['question_text'] }}</p>
     <ul>
-        {% for item in other_links %}
-            <li><a href="{{ item['url'] }}">{{ item['text'] }}</a></li>
-        {% endfor %}
+        <li><input type="radio" name="question_{{ question['id'] }}" title="問題文" value="{{ question['option_1'] }}" required>{{ question['option_1'] }}</li>
+        <li><input type="radio" name="question_{{ question['id'] }}" title="問題文"　value="{{ question['option_2'] }}">{{ question['option_2'] }}</li>
+        <li><input type="radio" name="question_{{ question['id'] }}" title="問題文"　value="{{ question['option_3'] }}">{{ question['option_3'] }}</li>
     </ul>
-    <div class="question">
-    </div>
-        {% if key %}
-        {{ title[key][0] }}
-        {% endif %}
-    </div>
-
-
-
-
-<br>
-
-
-<form action="/ans/{{ key }}" method="POST" class="options">
-    <label>
-        {% if key %}
-         <input type="radio" name="answer" value="1"> {{ enquirely[key][1] }}
-    </label>
-    <label>
-        <input type="radio" name="answer" value="2"> {{ enquirely[key][2] }}
-        {% endif %}
-    </label>
-
+    {% endfor %}
+    <button type="submit">送信</button>
 </form>
-<br>
-
-<a href="/" class="back-link">Back</a>
 </body>
 </html>

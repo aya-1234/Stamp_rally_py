@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request,redirect, url_for
 import sqlite3
 import pandas as pd
 import os
@@ -38,6 +38,7 @@ def index():
                             {"url": "/table", "text": "テーブル画面"},
                             {"url": "/next4", "text": "アンケート画面"},
                             {"url": "/next5", "text": "クイズ"},
+                            {"url": "/next6", "text": "クイズ"},
                             ])
 
 # next1の画面内容
@@ -515,20 +516,117 @@ def survey():
                             ])
 
 
-@ app.route("/next5")
-def next5():
-    enquiry_list = [
-        {"key": key, "quiz_t": value[0]} for key, value in enquirely.items()
-        ]
-    return render_template("quiz.html",
-                           enquiry_list=enquiry_list,
-                           quiz_t=enquirely,
-                           other_links=[
-                            {"url": "/user_t", "text": "userテーブル"},
-                            {"url": "/quiz_t", "text": "クイズテーブル"},
-                            {"url": "/survey_t", "text": "アンケートテーブル"},
-                            ])
+# @ app.route("/next5")
+# def next5():
+#     enquiry_list = [
+#         {"key": key, "quiz_t": value[0]} for key, value in enquirely.items()
+#         ]
+#     return render_template("quiz.html",
+#                            enquiry_list=enquiry_list,
+#                            quiz_t=enquirely,
+#                            other_links=[
+#                             {"url": "/user_t", "text": "userテーブル"},
+#                             {"url": "/quiz_t", "text": "クイズテーブル"},
+#                             {"url": "/survey_t", "text": "アンケートテーブル"},
+#                             ])
 
+
+DATABASE = 'quiz.db'
+
+
+def get_db():
+    db = getattr(app, '_database', None)
+    if db is None:
+        db = app._database = sqlite3.connect(DATABASE)
+        db.row_factory = sqlite3.Row  # ディクショナリのようなアクセスを可能にする
+    return db
+
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(app, '_database', None)
+    if db is not None:
+        db.close()
+
+
+# データベースの初期化 (初回起動時のみ実行)
+def init_db():
+    with app.app_context():
+        db = get_db()
+        with app.open_resource('schema.sql', mode='r') as f:
+            db.cursor().executescript(f.read())
+        db.commit()
+
+# schema.sql (データベースのスキーマ定義)
+# quiz.dbと同じディレクトリに配置
+
+
+"""
+CREATE TABLE IF NOT EXISTS quiz_groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS questions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id INTEGER NOT NULL,
+    question_text TEXT NOT NULL,
+    correct_answer TEXT NOT NULL,
+    option_1 TEXT NOT NULL,
+    option_2 TEXT NOT NULL,
+    option_3 TEXT NOT NULL,
+    FOREIGN KEY (group_id) REFERENCES quiz_groups(id)
+);
+"""
+
+# ルートURL (グループ選択画面)
+
+
+# @app.route('/next6')
+# def index_quiz():
+#     db = get_db()
+#     groups = db.execute('SELECT * FROM quiz_groups').fetchall()
+#     return render_template('index.html', groups=groups)
+
+
+# クイズ画面
+@app.route('/next6/<int:group_id>', methods=['GET', 'POST'])
+def quiz(group_id):
+    db = get_db()
+    group = db.execute('SELECT name FROM quiz_groups WHERE id = ?', (group_id,)).fetchone()
+    if group is None:
+        return "グループが見つかりません", 404
+
+    questions = db.execute(
+        'SELECT * FROM questions WHERE group_id = ?', (group_id,)
+        ).fetchall()
+    if not questions:
+        return "このグループには問題がありません。", 404
+
+    if request.method == 'POST':
+        score = 0
+        results = []
+        for question in questions:
+            user_answer = request.form.get(f"question_{question['id']}")
+            correct = user_answer == question['correct_answer']
+            score += int(correct)
+            results.append({
+                'question': question['question_text'],
+                'user_answer': user_answer,
+                'correct_answer': question['correct_answer'],
+                'is_correct': correct,
+                'options': [
+                    question['option_1'],
+                    question['option_2'],
+                    question['option_3']
+                            ]
+            })
+        return render_template(
+            'results.html', results=results, score=score, total=len(questions),
+            group_name=group['name'])
+
+    return render_template(
+        'quiz.html', questions=questions, group_name=group['name'])
 
 if __name__ == "__main__":
     app.run(debug=True, port=8888, threaded=True)
