@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request,redirect, url_for
+from flask import Flask, render_template, request, send_from_static
 import sqlite3
 import pandas as pd
 import os
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 UPLOAD_FOLDER = 'uploads'  # アップロードファイルを保存するディレクトリ
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER  # 正しく設定
@@ -265,6 +265,15 @@ def next2():
     '''
     return output
 
+@app.route('/next2/map-section')
+def picture():
+    return render_template('next2.html')
+
+# send_from_staticはFlask 1.1.0以降で使用可能です。
+# それ以前のバージョンではsend_static_fileを使用してください。
+@app.route('/image')
+def get_image():
+    return send_from_static('image.jpg')
 
 # next3の中身を表示
 # ユーザーIDを受け取るように変更
@@ -361,12 +370,13 @@ def ans(key):
     return output
 
 # PDFファイルを提供するための新しいルート
-@app.route('/map_ol2.pdf')
-def serve_pdf():
-    return send_file(
-        os.path.join(app.root_path, 'static', 'map_ol2.pdf'),
-        as_attachment=True)
 
+
+# @ app.route('/map_ol2.pdf')
+# def serve_pdf():
+#     return send_file(
+#         os.path.join(app.root_path, 'static', 'map_ol2.pdf'),
+#         as_attachment=True)
 
 # 全tableを表示
 
@@ -389,11 +399,9 @@ def serve_pdf():
 @ app.route('/table')
 def user_t():
     output = '''
-    <h3>全ユーザー一覧</h3>
-    
-    '''
-
-#<div id="user_list">
+    <h1>全ユーザー一覧</h1>
+'''
+# <div id="user_list">
 # @ app.route('/table')
 # def table():
 #     output = '''
@@ -593,7 +601,9 @@ CREATE TABLE IF NOT EXISTS questions (
 @app.route('/next6/<int:group_id>', methods=['GET', 'POST'])
 def quiz(group_id):
     db = get_db()
-    group = db.execute('SELECT name FROM quiz_groups WHERE id = ?', (group_id,)).fetchone()
+    group = db.execute(
+        'SELECT name FROM quiz_groups WHERE id = ?',
+        (group_id,)).fetchone()
     if group is None:
         return "グループが見つかりません", 404
 
