@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>管理者メニュー</h1>
+    <form action="/next1/search" method="POST">
+        <h3>ユーザー検索</h3>
+        名前: <input type="text" title="あ" name="search_name">
+        <input type="submit" title="あ"　value="検索">
+    </form>
+    <h3>データベース操作</h3>
+
+    <form action="/next1/add" method="post">
+        <h4>ユーザー追加</h4>
+            新しい名前: <input type="text" name="add_name"　title="あ" required>
+            新しいメール: <input type="email"　title="あ" name="add_email">
+        <input type="submit"　title="あ"　value="追加">
+    </form>
+
+    <form action="/next1/edit" method="POST">
+        <h4>ユーザー情報編集</h4>
+        既存の名前: <input type="text"　title="あ" name="current_name" required>
+        新しい名前: <input type="text"　title="あ" name="new_name" required>
+        新しいメール: <input type="email"　title="あ" name="new_email">
+        <input type="submit"　title="あ" value="更新">
+    </form>
+
+    <h3>全ユーザー一覧</h3>
+    <div id="user_list">
+    <a href="/">Back</a>
+</body>
+</html>
