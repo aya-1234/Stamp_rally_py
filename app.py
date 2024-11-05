@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+import pandas as pd
 import sqlite3
 import os
 
@@ -45,53 +46,7 @@ def index():
 
 @ app.route('/next1')
 def next1():
-    output = '''
-
-    <h2>管理者メニュー</h2>
-    <form action="/next1/search" method="POST">
-        <h3>ユーザー検索</h3>
-        名前: <input type="text" name="search_name">
-        <input type="submit" value="検索">
-    </form>
-    <h3>データベース操作</h3>
-
-    <form action="/next1/add" method="post">
-        <h4>ユーザー追加</h4>
-            新しい名前: <input type="text" name="add_name" required>
-            新しいメール: <input type="email" name="add_email">
-        <input type="submit" value="追加">
-    </form>
-
-    <form action="/next1/edit" method="POST">
-        <h4>ユーザー情報編集</h4>
-        既存の名前: <input type="text" name="current_name" required>
-        新しい名前: <input type="text" name="new_name" required>
-        新しいメール: <input type="email" name="new_email">
-        <input type="submit" value="更新">
-    </form>
-
-    <h3>全ユーザー一覧</h3>
-    <div id="user_list">
-    '''
-
-#  <! --ユーザー情報編集において、既存メールではなく、既存ユーザー名を検索し、新規ネームと、新規emailを作成する-->
-
-#     <form action="/next1/delete" method="POST"
-#    onsubmit="return confirm('本当に削除しますか？');">
-#         <h4>ユーザー削除</h4>
-#         メール: <input type="text" name="delete_>
-#         <input type="submit" value="削除">
-
-    with sqlite3.connect('data.db') as conn:
-        df = pd.read_sql_query('SELECT * FROM USER', conn)
-        output += df.to_html()
-
-    output += '''
-    </div>
-    <br>
-    <a href="/">トップに戻る</a>
-    '''
-    return output
+    return render_template('admin.html')
 
 # next1の中身
 
@@ -204,6 +159,7 @@ def edit_user():
         <a href="/next1">管理者メニューに戻る</a>
         '''
 
+
 # userを削除するためのコード
 # @app.route('/delete', methods=['POST'])
 # def delete_route():
@@ -219,55 +175,49 @@ def edit_user():
 # ext2の中身を表示
 @app.route('/next2')
 def next2():
-    output = '''
-    <h2>エコスタンプラリーへようこそ！</h2>
+    return render_template('ljalkjsdf.html')
 
-    <div class="how-to-play">
-        <h3>遊び方</h3>
-        <ol>
-            <li>街の環境に優しいスポットを訪れる</li>
-            <li>各スポットでQRコードを探す</li>
-            <li>QRコードを読み取ってスタンプを獲得</li>
-            <li>スタンプを集めて景品をゲット！</li>
-        </ol>
-    </div>
+# '''
+#     <style>
+#         .how-to-play {
+#             margin: 20px;
+#             padding: 15px;
+#             background-color: #f5f5f5;
+#             border-radius: 5px;
+#         }
+#         .map-button {
+#             display: inline-block;
+#             padding: 10px 20px;
+#             background-color: #4CAF50;
+#             color: white;
+#             text-decoration: none;
+#             border-radius: 5px;
+#             margin: 10px 0;
+#         }
+#         .map-button:hover {
+#             background-color: #45a049;
+#         }
+#     </style>
 
-    <div class="map-section">
-        <h3>街の地図</h3>
-        <p>下のボタンをクリックして地図をダウンロードできます</p>
-        <a href="/map_ol2.pdf" target="_blank" class="map-button">
-            地図をダウンロード（PDF）
+#     '''
 
-    <style>
-        .how-to-play {
-            margin: 20px;
-            padding: 15px;
-            background-color: #f5f5f5;
-            border-radius: 5px;
-        }
-        .map-button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-        .map-button:hover {
-            background-color: #45a049;
-        }
-    </style>
 
-    <br>
-    <a href="/">トップページに戻る</a>
-    '''
-    return output
+# def pdf_to_base64_image(pdf_path, page_number=0):
+#     """PDFをBase64エンコードされた画像データに変換する"""
+#     try:
+#         doc = fitz.open("image/map_ol2.pdf")
+#         page = doc.load_page(1)  # 指定ページを読み込み (デフォルトは最初のページ)
+#         pix = page.get_pixmap(alpha=False)  # 透明度なしで画像を取得
+#         image_bytes = pix.tobytes("png") # PNG形式でバイトデータを取得
+#         encoded_string = base64.b64encode(image_bytes).decode("utf-8")
+#         return f"data:image/png;base64,{encoded_string}"
+#     except Exception as e:
+#         print(f"Error converting PDF to image: {e}")
+#         return None
 
 
 # next3の中身を表示
 # ユーザーIDを受け取るように変更
-
 
 @ app.route('/next3/<user_id>')
 def next3(user_id):
@@ -514,69 +464,49 @@ def survey():
                             ])
 
 
-# @ app.route("/next5")
-# def next5():
-#     enquiry_list = [
-#         {"key": key, "quiz_t": value[0]} for key, value in enquirely.items()
-#         ]
-#     return render_template("quiz.html",
-#                            enquiry_list=enquiry_list,
-#                            quiz_t=enquirely,
-#                            other_links=[
-#                             {"url": "/user_t", "text": "userテーブル"},
-#                             {"url": "/quiz_t", "text": "クイズテーブル"},
-#                             {"url": "/survey_t", "text": "アンケートテーブル"},
-#                             ])
+@ app.route("/next5")
+def next5():
+     enquiry_list = [
+         {"key": key, "quiz_t": value[0]} for key, value in nquirely.items()
+         ]
+     return render_template("index_quiz.html",
+                            enquiry_list=enquiry_list,
+                            quiz_t=enquirely,
+                            other_links=[
+                             {"url": "/user_t", "text": "userテーブル"},
+                             {"url": "/quiz_t", "text": "クイズテーブル"},
+                             {"url": "/survey_t", "text": "アンケートテーブル"},
+                             ])
 
 
-DATABASE = 'quiz.db'
+# DATABASE = 'quiz.db'
 
 
-def get_db():
-    db = getattr(app, '_database', None)
-    if db is None:
-        db = app._database = sqlite3.connect(DATABASE)
-        db.row_factory = sqlite3.Row  # ディクショナリのようなアクセスを可能にする
-    return db
+# def get_db():
+#     db = getattr(app, '_database', None)
+#     if db is None:
+#         db = app._database = sqlite3.connect(DATABASE)
+#         db.row_factory = sqlite3.Row  # ディクショナリのようなアクセスを可能にする
+#     return db
 
 
-@app.teardown_appcontext
-def close_connection(exception):
-    db = getattr(app, '_database', None)
-    if db is not None:
-        db.close()
+# @app.teardown_appcontext
+# def close_connection(exception):
+#     db = getattr(app, '_database', None)
+#     if db is not None:
+#         db.close()
 
 
-# データベースの初期化 (初回起動時のみ実行)
-def init_db():
-    with app.app_context():
-        db = get_db()
-        with app.open_resource('schema.sql', mode='r') as f:
-            db.cursor().executescript(f.read())
-        db.commit()
+# # データベースの初期化 (初回起動時のみ実行)
+# def init_db():
+#     with app.app_context():
+#         db = get_db()
+#         with app.open_resource('schema.sql', mode='r') as f:
+#             db.cursor().executescript(f.read())
+#         db.commit()
 
 # schema.sql (データベースのスキーマ定義)
 # quiz.dbと同じディレクトリに配置
-
-
-"""
-CREATE TABLE IF NOT EXISTS quiz_groups (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT UNIQUE NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS questions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    group_id INTEGER NOT NULL,
-    question_text TEXT NOT NULL,
-    correct_answer TEXT NOT NULL,
-    option_1 TEXT NOT NULL,
-    option_2 TEXT NOT NULL,
-    option_3 TEXT NOT NULL,
-    FOREIGN KEY (group_id) REFERENCES quiz_groups(id)
-);
-"""
-
 # ルートURL (グループ選択画面)
 
 
