@@ -38,6 +38,7 @@ def index():
                             {"url": "/table", "text": "テーブル画面"},
                             {"url": "/next4", "text": "アンケート画面"},
                             {"url": "/next5", "text": "クイズ"},
+                            {"url": "/next6", "text": "クイズ"}
                             ])
 
 # next1の画面内容
