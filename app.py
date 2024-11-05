@@ -38,7 +38,6 @@ def index():
                             {"url": "/table", "text": "テーブル画面"},
                             {"url": "/next4", "text": "アンケート画面"},
                             {"url": "/next5", "text": "クイズ"},
-                            {"url": "/next6", "text": "クイズ"},
                             ])
 
 # next1の画面内容
@@ -251,22 +250,22 @@ def next3(user_id):
 # @app.route('/enq/<key>')
 
 
-@ app.route('/next5/<key>')  # <key>をURLパラメータとして受け取る
-def enq(key):
-    # キーが辞書に存在しない場合のエラーハンドリング
-    if key not in enquirely:
-        return "指定されたキーは存在しません。", 404
+# @ app.route('/next5/<key>')  # <key>をURLパラメータとして受け取る
+# def enq(key):
+#     # キーが辞書に存在しない場合のエラーハンドリング
+#     if key not in enquirely:
+#         return "指定されたキーは存在しません。", 404
 
-    # キーに基づいて質問と選択肢を取得
-    question, option1, option2 = enquirely[key]
+#     # キーに基づいて質問と選択肢を取得
+#     question, option1, option2 = enquirely[key]
 
-    # quiz.htmlテンプレートにデータを渡してレンダリング
-    return render_template("quiz.html",
-                           key=key,
-                           question=question,
-                           option1=option1,
-                           option2=option2
-                           )
+#     # quiz.htmlテンプレートにデータを渡してレンダリング
+#     return render_template("quiz.html",
+#                            key=key,
+#                            question=question,
+#                            option1=option1,
+#                            option2=option2
+#                            )
 
 
 # アンケートにアクセスするkeyを使用
@@ -459,14 +458,14 @@ def survey():
 
 
 @ app.route("/next5")
-def next5():
-     enquiry_list = [
-         {"key": key, "quiz_t": value[0]} for key, value in enquirely.items()
-         ]
-     return render_template("index_quiz.html",
-                            enquiry_list=enquiry_list,
-                            quiz_t=enquirely,
-                            other_links=[
+def quiz_all():
+    enquiry_list = [
+        {"key": key, "title": value[0]} for key, value in enquirely.items()
+        ]
+    return render_template("index.html",
+                           enquiry_list=enquiry_list,
+                           quiz_all = enquirely,
+                           other_links = [
                              {"url": "/quiz_1", "text": "クイズ1"},
                              {"url": "/quiz_2", "text": "クイズ2"},
                              {"url": "/quiz_3", "text": "クイズ3"},
@@ -478,7 +477,7 @@ def next5():
                              ])
 
 
-# DATABASE = 'quiz.db'
+DATABASE = 'quiz.db'
 
 
 # def get_db():
@@ -507,13 +506,6 @@ def next5():
 # schema.sql (データベースのスキーマ定義)
 # quiz.dbと同じディレクトリに配置
 # ルートURL (グループ選択画面)
-
-
-# @app.route('/next6')
-# def index_quiz():
-#     db = get_db()
-#     groups = db.execute('SELECT * FROM quiz_groups').fetchall()
-#     return render_template('index.html', groups=groups)
 
 
 # クイズ画面
