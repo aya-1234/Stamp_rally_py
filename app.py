@@ -337,47 +337,41 @@ def ans(key):
 
 
 @ app.route('/table')
-def user_t():
-    output = '''
-    <h1>全ユーザー一覧</h1>
-'''
-# <div id="user_list">
-# @ app.route('/table')
-# def table():
-#     output = '''
-#     <table>
-#         <thead>
-#             <tr>
-#                 <th>ID</th>
-#                 <th>名前</th>
-#                 <th>登録日時</th>
-#             </tr>
-#         </thead>
-#         <tbody>
-#     '''
+def table():
+     output = '''
+     <table>
+         <thead>
+             <tr>
+                 <th>ID</th>
+                 <th>名前</th>
+                 <th>登録日時</th>
+             </tr>
+         </thead>
+         <tbody>
+     '''
 
-#     with sqlite3.connect('data.db') as conn:
-#         cursor = conn.cursor()
-#         cursor.execute('SELECT * FROM USER')
-#         users = cursor.fetchall()
+     with sqlite3.connect('data.db') as conn:
+         cursor = conn.cursor()
+         cursor.execute('SELECT * FROM USER')
+         users = cursor.fetchall()
 
-#         for user in users:
-#             output += f'''
-#             <tr>
-#                 <td>{user[0]}</td>
-#                 <td>{user[1]}</td>
-#                 <td>{user[2]}</td>
-#             </tr>
-#             '''
+         for user in users:
+             output += f'''
+             <tr>
+                 <td>{user[0]}</td>
+                 <td>{user[1]}</td>
+                 <td>{user[2]}</td>
+             </tr>
+             '''
 
-#     output += '''
-#         </tbody>
-#     </table>
-#         <br>
-#     <a href="/">トップページに戻る</a>
-#     '''
+     output += '''
+         </tbody>
+     </table>
+         <br>
+     <a href="/">トップページに戻る</a>
+     '''
 
-#     return output
+     return output
 
 
 # def table():
@@ -467,15 +461,20 @@ def survey():
 @ app.route("/next5")
 def next5():
      enquiry_list = [
-         {"key": key, "quiz_t": value[0]} for key, value in nquirely.items()
+         {"key": key, "quiz_t": value[0]} for key, value in enquirely.items()
          ]
      return render_template("index_quiz.html",
                             enquiry_list=enquiry_list,
                             quiz_t=enquirely,
                             other_links=[
-                             {"url": "/user_t", "text": "userテーブル"},
-                             {"url": "/quiz_t", "text": "クイズテーブル"},
-                             {"url": "/survey_t", "text": "アンケートテーブル"},
+                             {"url": "/quiz_1", "text": "クイズ1"},
+                             {"url": "/quiz_2", "text": "クイズ2"},
+                             {"url": "/quiz_3", "text": "クイズ3"},
+                             {"url": "/quiz_4", "text": "クイズ4"},
+                             {"url": "/quiz_5", "text": "クイズ5"},
+                             {"url": "/quiz_6", "text": "クイズ6"},
+                             {"url": "/quiz_7", "text": "クイズ7"},
+                             {"url": "/quiz_8", "text": "クイズ8"},
                              ])
 
 
