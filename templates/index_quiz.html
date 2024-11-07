@@ -1,6 +1,0 @@
-<h1>クイズグループ選択</h1>
-<ul>
-    {% for group in groups %}
-    <li><a href="{{ url_for('quiz', group_id=group['id']) }}">{{ group['name'] }}</a></li>
-    {% endfor %}
-</ul>

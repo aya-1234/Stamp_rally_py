@@ -38,7 +38,6 @@ def index():
                             {"url": "/table", "text": "テーブル画面"},
                             {"url": "/next4", "text": "アンケート画面"},
                             {"url": "/next5", "text": "クイズ"},
-                            {"url": "/next6", "text": "クイズ"},
                             ])
 
 # next1の画面内容
@@ -55,27 +54,51 @@ def next1():
 
 # next1/serch内に検索結果を表示する
 
-
-@ app.route('/next1/search', methods=['POST'])
+@app.route('/next1/search', methods=['POST'])
 def search_user():
-    search_name = request.form.get('search_name')
-    output = '<h2>検索結果</h2>'
+    search_login_id = request.form.get('search_login_id')  # Get the login ID from the form
 
-    with sqlite3.connect('data.db') as conn:
-        df = pd.read_sql(
-            'SELECT * FROM USER WHERE name LIKE ?',
-            conn,
-            params=['%' + search_name + '%']
+    if not search_login_id:
+        return render_template('admin.html', error="ログインIDを入力してください")
+
+
+    try:
+        with sqlite3.connect('user.db') as conn:
+            df = pd.read_sql(
+                'SELECT * FROM USER WHERE loginId TEXT, ?',
+                conn,
+                params=['%' + search_login_id + '%']
             )
-        output += df.to_html()
 
-    output += '''
-    <br>
-    <a href="/next1">管理者メニューに戻る</a>
-    <br>
-    <a href="/">トップに戻る</a>
-    '''
-    return output
+        if df.empty: # 検索結果がない場合の処理
+            return render_template('search.html', error="該当するユーザーが見つかりません", search_name=search_login_id)
+
+        return render_template('search_results.html', search_results=df, search_name=search_login_id)
+
+    except Exception as e: # エラー処理
+        return render_template('search.html', error=f"エラーが発生しました: {e}")
+
+
+# @ app.route('/next1/search', methods=['POST'])
+# def search_user():
+#     search_name = request.form.get('search_name')
+#     output = '<h2>検索結果</h2>'
+
+#     with sqlite3.connect('user.db') as conn:
+#         df = pd.read_sql(
+#             'SELECT * FROM USER WHERE name LIKE ?',
+#             conn,
+#             params=['%' + search_name + '%']
+#             )
+#         output += df.to_html()
+
+#     output += '''
+#     <br>
+#     <a href="/next1">管理者メニューに戻る</a>
+#     <br>
+#     <a href="/">トップに戻る</a>
+#     '''
+#     return output
 
 # userを追加するためのコード
 
@@ -251,22 +274,22 @@ def next3(user_id):
 # @app.route('/enq/<key>')
 
 
-@ app.route('/next5/<key>')  # <key>をURLパラメータとして受け取る
-def enq(key):
-    # キーが辞書に存在しない場合のエラーハンドリング
-    if key not in enquirely:
-        return "指定されたキーは存在しません。", 404
+# @ app.route('/next5/<key>')  # <key>をURLパラメータとして受け取る
+# def enq(key):
+#     # キーが辞書に存在しない場合のエラーハンドリング
+#     if key not in enquirely:
+#         return "指定されたキーは存在しません。", 404
 
-    # キーに基づいて質問と選択肢を取得
-    question, option1, option2 = enquirely[key]
+#     # キーに基づいて質問と選択肢を取得
+#     question, option1, option2 = enquirely[key]
 
-    # quiz.htmlテンプレートにデータを渡してレンダリング
-    return render_template("quiz.html",
-                           key=key,
-                           question=question,
-                           option1=option1,
-                           option2=option2
-                           )
+#     # quiz.htmlテンプレートにデータを渡してレンダリング
+#     return render_template("quiz.html",
+#                            key=key,
+#                            question=question,
+#                            option1=option1,
+#                            option2=option2
+#                            )
 
 
 # アンケートにアクセスするkeyを使用
@@ -352,17 +375,17 @@ def table():
 
      with sqlite3.connect('data.db') as conn:
          cursor = conn.cursor()
-         cursor.execute('SELECT * FROM USER')
+         cursor.execute('SELECT * FROM user')
          users = cursor.fetchall()
 
          for user in users:
-             output += f'''
-             <tr>
-                 <td>{user[0]}</td>
-                 <td>{user[1]}</td>
-                 <td>{user[2]}</td>
-             </tr>
-             '''
+            output += f'''
+            <tr>
+                <td>{user[0]}</td>
+                <td>{Markup.escape(str(user[1]))}</td>  # エスケープ処理を追加
+                <td>{user[2]}</td>
+            </tr>
+            '''
 
      output += '''
          </tbody>
@@ -420,11 +443,6 @@ def table():
 # def table(survey):
 
 
-# @app.route("/next4")
-# def survey_a():
-#     return render_template("survey.html")
-
-
 @app.route('/user/<int:id>')
 def user(id):
     output = ''
@@ -454,19 +472,28 @@ def survey():
                            survey=enquirely,
                            other_links=[
                             {"url": "/start", "text": "初めてアンケート"},
+                            {"url": "/quiz_1", "text": "クイズ1_アンケート"},
+                            {"url": "/quiz_2_survey", "text": "クイズ2_アンケート"},
+                            {"url": "/quiz_3_survey", "text": "クイズ3_アンケート"},
+                            {"url": "/quiz_4_survey", "text": "クイズ4_アンケート"},
+                            {"url": "/quiz_5_survey", "text": "クイズ5_アンケート"},
+                            {"url": "/quiz_6_survey", "text": "クイズ6_アンケート"},
+                            {"url": "/quiz_7_survey", "text": "クイズ7_アンケート"},
+                            {"url": "/quiz_8_survey", "text": "クイズ8_アンケート"},
                             {"url": "/end", "text": "終わりアンケート"},
                             ])
 
 
+
 @ app.route("/next5")
-def next5():
-     enquiry_list = [
-         {"key": key, "quiz_t": value[0]} for key, value in enquirely.items()
-         ]
-     return render_template("index_quiz.html",
-                            enquiry_list=enquiry_list,
-                            quiz_t=enquirely,
-                            other_links=[
+def quiz_all():
+    enquiry_list = [
+        {"key": key, "title": value[0]} for key, value in enquirely.items()
+        ]
+    return render_template("index.html",
+                           enquiry_list=enquiry_list,
+                           quiz_all = enquirely,
+                           other_links = [
                              {"url": "/quiz_1", "text": "クイズ1"},
                              {"url": "/quiz_2", "text": "クイズ2"},
                              {"url": "/quiz_3", "text": "クイズ3"},
@@ -478,15 +505,102 @@ def next5():
                              ])
 
 
-# DATABASE = 'quiz.db'
+DATABASE = 'quiz.db'  # データベースファイル名を統一
+
+def quiz():
+
+        # アプリケーション起動時にデータベースとテーブルを作成、データ挿入
+    insert_quiz_data()
+    try:
+        with sqlite3.connect(DATABASE) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS quizzes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    key TEXT UNIQUE NOT NULL,
+                    title TEXT NOT NULL,
+                    content TEXT NOT NULL
+                )
+            ''')
+            conn.commit()  # 変更をコミット
+
+            # テーブル作成後の処理 (例: データの挿入)
+            insert_quiz_data(conn, cursor)
+
+    except sqlite3.Error as e:
+        print(f"データベースエラー: {e}")
+        return "データベースエラー", 500  # エラーレスポンスを返す
+
+    return "テーブルが作成されました", 201 # 成功レスポンスを返す
 
 
-# def get_db():
-#     db = getattr(app, '_database', None)
-#     if db is None:
-#         db = app._database = sqlite3.connect(DATABASE)
-#         db.row_factory = sqlite3.Row  # ディクショナリのようなアクセスを可能にする
-#     return db
+
+def insert_quiz_data(conn, cursor):
+    quizzes = [
+        ("quiz_1", "クイズ1のタイトル", "クイズ1の内容..."),
+        ("quiz_2", "クイズ2のタイトル", "クイズ2の内容..."),
+        # ... 他のクイズデータ
+    ]
+    try:
+        cursor.executemany("INSERT OR IGNORE INTO quizzes (key, title, content) VALUES (?, ?, ?)", quizzes)
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"データ挿入エラー: {e}")
+        conn.rollback()  # エラーが発生した場合はロールバック
+
+    #cursor.executemany("INSERT OR IGNORE INTO quizzes (key, title, content) VALUES (?, ?, ?)", quizzes)
+
+# アプリケーション起動時にデータ挿入 (必要に応じてコメントアウト)
+#insert_quiz_data()
+
+def get_quiz_data_from_db():
+     db = getattr(app, '_database', None)
+     if db is None:
+         db = app._database = sqlite3.connect(DATABASE)
+         db.row_factory = sqlite3.Row  # ディクショナリのようなアクセスを可能にする
+     return db
+
+# @ app.route("/quiz1")
+# def quiz(quiz_id):
+#     enquirely = get_quiz_data_from_db()
+#     if enquirely is None:  # データベースエラーが発生した場合
+#         return "データベースエラー", 500
+#     if 1 <= quiz_id <= len(enquirely):
+#         quiz_key = f"quiz_{quiz_id}"
+#         quiz_title = enquirely[quiz_key][0]
+#         quiz_content = enquirely[quiz_key][1]
+#         i = quiz_id
+#         o = quiz_content
+#         other_links ={"url": f"/quiz/{i 1}", "text": f"クイズ{o}"} for:i in range(1, len(enquirely) +)
+#         return render_template("quiz.html",
+#                                 quiz_title=quiz_title,
+#                                 quiz_content=quiz_content, # クイズの内容を渡す
+#                                 other_links=other_links,
+#                                 current_quiz_id=quiz_id) # 現在のクイズIDを渡す
+#     else:
+#     return "クイズが見つかりません", 404
+#     # クイズIDが無効な場合のエラー処理                     )
+
+@app.route("/quiz_<int:quiz_id>")
+def quiz(quiz_id):
+    enquirely = get_quiz_data_from_db()
+    if enquirely is None:  # データベースエラーが発生した場合
+        return "データベースエラー", 500
+    if 1 <= quiz_id <= len(enquirely):
+        quiz_key = f"quiz_{quiz_id}"
+        quiz_title = enquirely[quiz_key][0]
+        quiz_content = enquirely[quiz_key][1]  # クイズの内容を追加
+        other_links = [
+            {"url": f"/quiz/{i}", "text": f"クイズ{i}"} for i in range(1, len(enquirely) + 1)
+        ]
+        return render_template("quiz.html",
+                               quiz_title=quiz_title,
+                               quiz_content=quiz_content, # クイズの内容を渡す
+                               other_links=other_links,
+                               current_quiz_id=quiz_id) # 現在のクイズIDを渡す
+    else:
+        return "クイズが見つかりません", 404
+    # クイズIDが無効な場合のエラー処理
 
 
 # @app.teardown_appcontext
@@ -509,53 +623,46 @@ def next5():
 # ルートURL (グループ選択画面)
 
 
-# @app.route('/next6')
-# def index_quiz():
-#     db = get_db()
-#     groups = db.execute('SELECT * FROM quiz_groups').fetchall()
-#     return render_template('index.html', groups=groups)
-
-
 # クイズ画面
-@app.route('/next6/<int:group_id>', methods=['GET', 'POST'])
-def quiz(group_id):
-    db = get_db()
-    group = db.execute(
-        'SELECT name FROM quiz_groups WHERE id = ?',
-        (group_id,)).fetchone()
-    if group is None:
-        return "グループが見つかりません", 404
+# @app.route('/next6/<int:group_id>', methods=['GET', 'POST'])
+# def quiz(group_id):
+#     db = get_db()
+#     group = db.execute(
+#         'SELECT name FROM quiz_groups WHERE id = ?',
+#         (group_id,)).fetchone()
+#     if group is None:
+#         return "グループが見つかりません", 404
 
-    questions = db.execute(
-        'SELECT * FROM questions WHERE group_id = ?', (group_id,)
-        ).fetchall()
-    if not questions:
-        return "このグループには問題がありません。", 404
+#     questions = db.execute(
+#         'SELECT * FROM questions WHERE group_id = ?', (group_id,)
+#         ).fetchall()
+#     if not questions:
+#         return "このグループには問題がありません。", 404
 
-    if request.method == 'POST':
-        score = 0
-        results = []
-        for question in questions:
-            user_answer = request.form.get(f"question_{question['id']}")
-            correct = user_answer == question['correct_answer']
-            score += int(correct)
-            results.append({
-                'question': question['question_text'],
-                'user_answer': user_answer,
-                'correct_answer': question['correct_answer'],
-                'is_correct': correct,
-                'options': [
-                    question['option_1'],
-                    question['option_2'],
-                    question['option_3']
-                            ]
-            })
-        return render_template(
-            'results.html', results=results, score=score, total=len(questions),
-            group_name=group['name'])
+#     if request.method == 'POST':
+#         score = 0
+#         results = []
+#         for question in questions:
+#             user_answer = request.form.get(f"question_{question['id']}")
+#             correct = user_answer == question['correct_answer']
+#             score += int(correct)
+#             results.append({
+#                 'question': question['question_text'],
+#                 'user_answer': user_answer,
+#                 'correct_answer': question['correct_answer'],
+#                 'is_correct': correct,
+#                 'options': [
+#                     question['option_1'],
+#                     question['option_2'],
+#                     question['option_3']
+#                             ]
+#             })
+#         return render_template(
+#             'results.html', results=results, score=score, total=len(questions),
+#             group_name=group['name'])
 
-    return render_template(
-        'quiz.html', questions=questions, group_name=group['name'])
+#     return render_template(
+#         'quiz.html', questions=questions, group_name=group['name'])
 
 if __name__ == "__main__":
     app.run(debug=True, port=8888, threaded=True)
