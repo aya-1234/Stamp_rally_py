@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>ユーザー検索</h1>
+    {% if error %}
+        <p style="color: red">{{ error }}</p>
+    {% endif %}
+    <form method="POST">
+        <input type="text" title="検索結果" name="search_name" value="{{ search_name or '' }}">
+        <button type="submit">検索</button>
+    </form>
+    <a href="/">Back</a>
+</body>
+</html>
