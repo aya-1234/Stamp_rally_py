@@ -54,30 +54,29 @@ def next1():
 
 # next1/serch内に検索結果を表示する
 
-@app.route('/next1/search', methods=['POST'])
+@app.route('/next1/search', methods=['GET', 'POST'])
 def search_user():
-    search_login_id = request.form.get('search_login_id')  # Get the login ID from the form
-
-    if not search_login_id:
-        return render_template('admin.html', error="ログインIDを入力してください")
-
-
-    try:
-        with sqlite3.connect('user.db') as conn:
-            df = pd.read_sql(
-                'SELECT * FROM USER WHERE loginId TEXT, ?',
-                conn,
-                params=['%' + search_login_id + '%']
-            )
-
-        if df.empty: # 検索結果がない場合の処理
-            return render_template('search.html', error="該当するユーザーが見つかりません", search_name=search_login_id)
-
-        return render_template('search_results.html', search_results=df, search_name=search_login_id)
-
-    except Exception as e: # エラー処理
-        return render_template('search.html', error=f"エラーが発生しました: {e}")
-
+    if request.method == 'POST':
+        search_login_id = request.form.get('search_login_id')
+        if not search_login_id:
+            return render_template('search.html', error="ログインIDを入力してください")  # 検索画面にエラーメッセージを表示
+        try:
+            with sqlite3.connect('user.db') as conn:
+                # ログイン時刻を含むようにSQLを変更
+                df = pd.read_sql_query(
+                    'SELECT * FROM USER WHERE loginId LIKE ?',
+                    conn,
+                    params=['%' + search_login_id + '%']  # LIKE句を使って部分一致検索
+                )
+            if df.empty:
+                return render_template('search.html', error="該当するユーザーが見つかりません", search_login_id=search_login_id) # 検索画面にエラーメッセージを表示
+            # ログイン時刻のフォーマットを調整 (必要に応じて)
+            # df['login_time'] = pd.to_datetime(df['login_time']).dt.strftime('%Y-%m-%d %H:%M:%S')
+            return render_template('search_results.html', search_results=df, search_login_id=search_login_id)
+        except Exception as e:
+            return render_template('search.html', error=f"エラーが発生しました: {e}", search_login_id=search_login_id)  # 検索画面にエラーメッセージを表示
+    else: # GETリクエスト（初期表示）
+        return render_template('search.html') 
 
 # @ app.route('/next1/search', methods=['POST'])
 # def search_user():
